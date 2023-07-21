@@ -1,7 +1,7 @@
 ﻿namespace lox.net
 {
     // NOTE: I'd never choose half of these names
-    enum TokenType
+    public enum TokenType
     {
         // Single-character tokens.
         LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,

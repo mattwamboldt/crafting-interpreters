@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Principal;
 
 namespace lox.net
 {
@@ -55,12 +54,13 @@ namespace lox.net
         {
             Scanner scanner = new Scanner(source);
             List<Token> tokens = scanner.ScanTokens();
+            Parser parser = new Parser(tokens);
+            Expr expression = parser.Parse();
 
-            // For now, just print the tokens.
-            foreach (var token in tokens)
-            {
-                Console.WriteLine(token);
-            }
+            // Stop if there was a syntax error.
+            if (hadError) return;
+
+            Console.WriteLine(new AstPrinter().Print(expression));
         }
 
         // TODO: Implement a more robust error handling to show the offending line and possibly column
@@ -73,6 +73,18 @@ namespace lox.net
         {
             Console.Error.WriteLine($"[line {line}] Error{where}: {message}");
             hadError = true;
+        }
+
+        public static void Error(Token token, string message)
+        {
+            if (token.type == TokenType.EOF)
+            {
+                Report(token.line, " at end", message);
+            }
+            else
+            {
+                Report(token.line, " at '" + token.lexeme + "'", message);
+            }
         }
     }
 }
