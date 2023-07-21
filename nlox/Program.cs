@@ -8,8 +8,11 @@ namespace lox.net
     {
         const int ERROR_INVALID_DATA = 13;
         const int ERROR_BAD_ARGUMENTS = 160;
+        const int ERROR_INTERNAL_ERROR = 1359;
 
+        private static readonly Interpreter interpreter = new Interpreter();
         static bool hadError = false;
+        static bool hadRuntimeError = false;
 
         static void Main(string[] args)
         {
@@ -33,9 +36,8 @@ namespace lox.net
             string contents = File.ReadAllText(path);
             Run(contents);
 
-            if (hadError) {
-                Environment.Exit(ERROR_BAD_ARGUMENTS);
-            }
+            if (hadError) Environment.Exit(ERROR_INVALID_DATA);
+            if (hadRuntimeError) Environment.Exit(ERROR_INTERNAL_ERROR);
         }
 
         private static void RunPrompt()
@@ -60,7 +62,7 @@ namespace lox.net
             // Stop if there was a syntax error.
             if (hadError) return;
 
-            Console.WriteLine(new AstPrinter().Print(expression));
+            interpreter.Interpret(expression);
         }
 
         // TODO: Implement a more robust error handling to show the offending line and possibly column
@@ -85,6 +87,12 @@ namespace lox.net
             {
                 Report(token.line, " at '" + token.lexeme + "'", message);
             }
+        }
+
+        public static void RuntimeError(RuntimeError error)
+        {
+            Console.WriteLine(error.Message + "\n[line " + error.token.line + "]");
+            hadRuntimeError = true;
         }
     }
 }
