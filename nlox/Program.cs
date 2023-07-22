@@ -19,7 +19,7 @@ namespace lox.net
             if (args.Length > 1)
             {
                 Console.WriteLine("Usage: nlox [script]");
-                Environment.Exit(ERROR_BAD_ARGUMENTS);
+                System.Environment.Exit(ERROR_BAD_ARGUMENTS);
             }
             else if (args.Length == 1)
             {
@@ -36,10 +36,11 @@ namespace lox.net
             string contents = File.ReadAllText(path);
             Run(contents);
 
-            if (hadError) Environment.Exit(ERROR_INVALID_DATA);
-            if (hadRuntimeError) Environment.Exit(ERROR_INTERNAL_ERROR);
+            if (hadError) System.Environment.Exit(ERROR_INVALID_DATA);
+            if (hadRuntimeError) System.Environment.Exit(ERROR_INTERNAL_ERROR);
         }
 
+        // TODO: Challenge 8.1 - Allow the REPL to print expression values again
         private static void RunPrompt()
         {
             while (true)
@@ -57,12 +58,12 @@ namespace lox.net
             Scanner scanner = new Scanner(source);
             List<Token> tokens = scanner.ScanTokens();
             Parser parser = new Parser(tokens);
-            Expr expression = parser.Parse();
+            List<Stmt> statements = parser.Parse();
 
             // Stop if there was a syntax error.
             if (hadError) return;
 
-            interpreter.Interpret(expression);
+            interpreter.Interpret(statements);
         }
 
         // TODO: Implement a more robust error handling to show the offending line and possibly column

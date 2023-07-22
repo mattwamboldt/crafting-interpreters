@@ -15,10 +15,20 @@
             string outputDir = args[0];
             DefineAst(outputDir, "Expr", new List<string>()
             {
+              "Assign   : Token name, Expr value",
               "Binary   : Expr left, Token op, Expr right",
               "Grouping : Expr expression",
               "Literal  : object value",
-              "Unary    : Token op, Expr right"
+              "Unary    : Token op, Expr right",
+              "Variable : Token name"
+            });
+
+            DefineAst(outputDir, "Stmt", new List<string>()
+            {
+              "Block      : List<Stmt> statements",
+              "Expression : Expr expression",
+              "Print      : Expr expression",
+              "Var        : Token name, Expr initializer"
             });
         }
 
@@ -27,6 +37,8 @@
             string path = outputDir + "/" + baseName + ".cs";
             using(var writer = File.CreateText(path))
             {
+                writer.WriteLine("using System.Collections.Generic;");
+                writer.WriteLine();
                 writer.WriteLine("namespace lox.net");
                 writer.WriteLine("{");
                 writer.WriteLine("\tpublic abstract class " + baseName);
