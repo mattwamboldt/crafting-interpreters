@@ -1,11 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using static lox.net.Stmt;
 
 namespace lox.net
 {
     public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
     {
-        private Environment environment = new Environment();
+        public readonly Environment globals = new Environment();
+        private Environment environment;
+
+        public Interpreter()
+        {
+            this.environment = globals;
+
+            globals.Define("clock", new NativeMethod(0, (interpreter, arguments) => {
+                return DateTimeOffset.Now.ToUnixTimeMilliseconds() / 1000.0;
+            }));
+        }
 
         public void Interpret(List<Stmt> statements)
         {
@@ -74,6 +85,30 @@ namespace lox.net
 
             // Unreachable
             return null;
+        }
+
+        public object VisitCallExpr(Expr.Call expr)
+        {
+            object callee = Evaluate(expr.callee);
+
+            List<object> arguments = new List<object>();
+            foreach (Expr argument in expr.arguments)
+            {
+                arguments.Add(Evaluate(argument));
+            }
+
+            if (callee is not ILoxCallable)
+            {
+                throw new RuntimeError(expr.paren, "Can only call functions and classes.");
+            }
+
+            ILoxCallable function = (ILoxCallable)callee;
+            if (arguments.Count != function.Arity())
+            {
+                throw new RuntimeError(expr.paren, $"Expected {function.Arity()} arguments but got {arguments.Count}.");
+            }
+
+            return function.Call(this, arguments);
         }
 
         public object VisitGroupingExpr(Expr.Grouping expr)
@@ -177,7 +212,7 @@ namespace lox.net
             statement.Accept(this);
         }
 
-        private void ExecuteBlock(List<Stmt> statements, Environment environment)
+        public void ExecuteBlock(List<Stmt> statements, Environment environment)
         {
             Environment previous = this.environment;
             try
@@ -207,6 +242,13 @@ namespace lox.net
             return null;
         }
 
+        public object VisitFunctionStmt(Stmt.Function stmt)
+        {
+            LoxFunction function = new LoxFunction(stmt, environment);
+            environment.Define(stmt.name.lexeme, function);
+            return null;
+        }
+
         public object VisitIfStmt(Stmt.If stmt)
         {
             if (IsTruthy(Evaluate(stmt.condition)))
@@ -226,6 +268,14 @@ namespace lox.net
             object value = Evaluate(stmt.expression);
             Console.WriteLine(Stringify(value));
             return null;
+        }
+
+        public object VisitReturnStmt(Stmt.Return stmt)
+        {
+            object value = null;
+            if (stmt.value != null) value = Evaluate(stmt.value);
+
+            throw new Return(value);
         }
 
         // TODO: Challenge 8.2 - Instead of initializing to null, throw runtime error for accessing unintialized variables (needs undefined marker like js)

@@ -20,6 +20,11 @@ namespace lox.net
             return Parenthesize(expr.op.lexeme, expr.left, expr.right);
         }
 
+        public string VisitCallExpr(Expr.Call expr)
+        {
+            throw new NotImplementedException();
+        }
+
         public string VisitGroupingExpr(Expr.Grouping expr)
         {
             return Parenthesize("group", expr.expression);

@@ -8,8 +8,10 @@ namespace lox.net
 		{
 			R VisitBlockStmt(Block stmt);
 			R VisitExpressionStmt(Expression stmt);
+			R VisitFunctionStmt(Function stmt);
 			R VisitIfStmt(If stmt);
 			R VisitPrintStmt(Print stmt);
+			R VisitReturnStmt(Return stmt);
 			R VisitVarStmt(Var stmt);
 			R VisitWhileStmt(While stmt);
 		}
@@ -40,6 +42,24 @@ namespace lox.net
 			}
 
 			public readonly Expr expression;
+		}
+		public class Function : Stmt
+		{
+			public Function(Token name, List<Token> parameters, List<Stmt> body)
+			{
+				this.name = name;
+				this.parameters = parameters;
+				this.body = body;
+			}
+
+			public override R Accept<R>(IVisitor<R> visitor)
+			{
+				return visitor.VisitFunctionStmt(this);
+			}
+
+			public readonly Token name;
+			public readonly List<Token> parameters;
+			public readonly List<Stmt> body;
 		}
 		public class If : Stmt
 		{
@@ -72,6 +92,22 @@ namespace lox.net
 			}
 
 			public readonly Expr expression;
+		}
+		public class Return : Stmt
+		{
+			public Return(Token keyword, Expr value)
+			{
+				this.keyword = keyword;
+				this.value = value;
+			}
+
+			public override R Accept<R>(IVisitor<R> visitor)
+			{
+				return visitor.VisitReturnStmt(this);
+			}
+
+			public readonly Token keyword;
+			public readonly Expr value;
 		}
 		public class Var : Stmt
 		{
