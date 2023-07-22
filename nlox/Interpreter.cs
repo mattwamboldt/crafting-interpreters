@@ -86,6 +86,22 @@ namespace lox.net
             return expr.value;
         }
 
+        public object VisitLogicalExpr(Expr.Logical expr)
+        {
+            object left = Evaluate(expr.left);
+
+            if (expr.op.type == TokenType.OR)
+            {
+                if (IsTruthy(left)) return left;
+            }
+            else
+            {
+                if (!IsTruthy(left)) return left;
+            }
+
+            return Evaluate(expr.right);
+        }
+
         public object VisitUnaryExpr(Expr.Unary expr)
         {
             object right = Evaluate(expr.right);
@@ -191,6 +207,20 @@ namespace lox.net
             return null;
         }
 
+        public object VisitIfStmt(Stmt.If stmt)
+        {
+            if (IsTruthy(Evaluate(stmt.condition)))
+            {
+                Execute(stmt.thenBranch);
+            }
+            else if (stmt.elseBranch != null)
+            {
+                Execute(stmt.elseBranch);
+            }
+
+            return null;
+        }
+
         public object VisitPrintStmt(Stmt.Print stmt)
         {
             object value = Evaluate(stmt.expression);
@@ -208,6 +238,16 @@ namespace lox.net
             }
 
             environment.Define(stmt.name.lexeme, value);
+            return null;
+        }
+
+        public object VisitWhileStmt(Stmt.While stmt)
+        {
+            while (IsTruthy(Evaluate(stmt.condition)))
+            {
+                Execute(stmt.body);
+            }
+
             return null;
         }
 

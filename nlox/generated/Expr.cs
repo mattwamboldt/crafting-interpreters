@@ -10,6 +10,7 @@ namespace lox.net
 			R VisitBinaryExpr(Binary expr);
 			R VisitGroupingExpr(Grouping expr);
 			R VisitLiteralExpr(Literal expr);
+			R VisitLogicalExpr(Logical expr);
 			R VisitUnaryExpr(Unary expr);
 			R VisitVariableExpr(Variable expr);
 		}
@@ -74,6 +75,24 @@ namespace lox.net
 			}
 
 			public readonly object value;
+		}
+		public class Logical : Expr
+		{
+			public Logical(Expr left, Token op, Expr right)
+			{
+				this.left = left;
+				this.op = op;
+				this.right = right;
+			}
+
+			public override R Accept<R>(IVisitor<R> visitor)
+			{
+				return visitor.VisitLogicalExpr(this);
+			}
+
+			public readonly Expr left;
+			public readonly Token op;
+			public readonly Expr right;
 		}
 		public class Unary : Expr
 		{
