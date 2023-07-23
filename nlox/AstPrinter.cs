@@ -25,6 +25,11 @@ namespace lox.net
             throw new NotImplementedException();
         }
 
+        public string VisitGetExpr(Expr.Get expr)
+        {
+            throw new NotImplementedException();
+        }
+
         public string VisitGroupingExpr(Expr.Grouping expr)
         {
             return Parenthesize("group", expr.expression);
@@ -39,6 +44,16 @@ namespace lox.net
         public string VisitLogicalExpr(Expr.Logical expr)
         {
             return Parenthesize(expr.op.lexeme, expr.left, expr.right);
+        }
+
+        public string VisitSetExpr(Expr.Set expr)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string VisitThisExpr(Expr.This expr)
+        {
+            throw new NotImplementedException();
         }
 
         public string VisitUnaryExpr(Expr.Unary expr)

@@ -3,15 +3,24 @@
 // TODO: Challenge 10.2 - Support for anonymous function expression
 namespace lox.net
 {
-    internal class LoxFunction : ILoxCallable
+    public class LoxFunction : ILoxCallable
     {
         private readonly Stmt.Function declaration;
         private readonly Environment closure;
+        private readonly bool isInitializer;
 
-        public LoxFunction(Stmt.Function declaration, Environment closure)
+        public LoxFunction(Stmt.Function declaration, Environment closure, bool isInitializer)
         {
             this.declaration = declaration;
             this.closure = closure;
+            this.isInitializer = isInitializer;
+        }
+
+        public LoxFunction Bind(LoxInstance instance)
+        {
+            Environment environment = new Environment(closure);
+            environment.Define("this", instance);
+            return new LoxFunction(declaration, environment, isInitializer);
         }
 
         public int Arity()
@@ -33,7 +42,17 @@ namespace lox.net
             }
             catch (Return returnValue)
             {
+                if (isInitializer)
+                {
+                    return closure.GetAt(0, "this");
+                }
+
                 return returnValue.value;
+            }
+
+            if (isInitializer)
+            {
+                return closure.GetAt(0, "this");
             }
 
             return null;

@@ -7,6 +7,7 @@ namespace lox.net
 		public interface IVisitor<R>
 		{
 			R VisitBlockStmt(Block stmt);
+			R VisitClassStmt(Class stmt);
 			R VisitExpressionStmt(Expression stmt);
 			R VisitFunctionStmt(Function stmt);
 			R VisitIfStmt(If stmt);
@@ -28,6 +29,22 @@ namespace lox.net
 			}
 
 			public readonly List<Stmt> statements;
+		}
+		public class Class : Stmt
+		{
+			public Class(Token name, List<Stmt.Function> methods)
+			{
+				this.name = name;
+				this.methods = methods;
+			}
+
+			public override R Accept<R>(IVisitor<R> visitor)
+			{
+				return visitor.VisitClassStmt(this);
+			}
+
+			public readonly Token name;
+			public readonly List<Stmt.Function> methods;
 		}
 		public class Expression : Stmt
 		{

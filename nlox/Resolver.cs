@@ -9,12 +9,21 @@ namespace lox.net
         private enum FunctionType
         {
             NONE,
-            FUNCTION
+            FUNCTION,
+            INITIALIZER,
+            METHOD
+        }
+
+        private enum ClassType
+        {
+            NONE,
+            CLASS
         }
 
         private readonly Interpreter interpreter;
         private readonly Stack<Dictionary<string, bool>> scopes = new Stack<Dictionary<string, bool>>();
         private FunctionType currentFunction = FunctionType.NONE;
+        private ClassType currentClass = ClassType.NONE;
 
         public Resolver(Interpreter interpreter)
         {
@@ -34,6 +43,34 @@ namespace lox.net
             BeginScope();
             Resolve(stmt.statements);
             EndScope();
+            return null;
+        }
+
+        public object VisitClassStmt(Stmt.Class stmt)
+        {
+            ClassType enclosingClass = currentClass;
+            currentClass = ClassType.CLASS;
+
+            Declare(stmt.name);
+            Define(stmt.name);
+
+            BeginScope();
+            scopes.Peek()["this"] = true;
+
+            foreach (Stmt.Function method in stmt.methods)
+            {
+                FunctionType declaration = FunctionType.METHOD;
+                if (method.name.lexeme == "init")
+                {
+                    declaration = FunctionType.INITIALIZER;
+                }
+
+                ResolveFunction(method, declaration);
+            }
+
+            EndScope();
+
+            currentClass = enclosingClass;
             return null;
         }
 
@@ -75,6 +112,11 @@ namespace lox.net
 
             if (stmt.value != null)
             {
+                if (currentFunction == FunctionType.INITIALIZER)
+                {
+                    Program.Error(stmt.keyword, "Can't return a value from an initializer.");
+                }
+
                 Resolve(stmt.value);
             }
 
@@ -126,6 +168,12 @@ namespace lox.net
             return null;
         }
 
+        public object VisitGetExpr(Expr.Get expr)
+        {
+            Resolve(expr.obj);
+            return null;
+        }
+
         public object VisitGroupingExpr(Expr.Grouping expr)
         {
             Resolve(expr.expression);
@@ -141,6 +189,25 @@ namespace lox.net
         {
             Resolve(expr.left);
             Resolve(expr.right);
+            return null;
+        }
+
+        public object VisitSetExpr(Expr.Set expr)
+        {
+            Resolve(expr.value);
+            Resolve(expr.obj);
+            return null;
+        }
+
+        public object VisitThisExpr(Expr.This expr)
+        {
+            if (currentClass == ClassType.NONE)
+            {
+                Program.Error(expr.keyword, "Can't use 'this' outside of a class.");
+                return null;
+            }
+
+            ResolveLocal(expr, expr.keyword);
             return null;
         }
 
