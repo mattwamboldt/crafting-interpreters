@@ -4,7 +4,7 @@ namespace lox.net
 {
     public class Environment
     {
-        readonly Environment enclosing;
+        public readonly Environment enclosing;
         private readonly Dictionary<string, object> values = new Dictionary<string, object>();
 
         public Environment()

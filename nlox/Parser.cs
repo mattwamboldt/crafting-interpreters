@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using static lox.net.Expr;
 
 // TODO: Challenge - Implement the comma operator to expressions
 // TODO: Challenge - Implement the ternary operator
@@ -54,6 +55,14 @@ namespace lox.net
         private Stmt ClassDeclaration()
         {
             Token name = Consume(TokenType.IDENTIFIER, "Expect class name.");
+
+            Expr.Variable superClass = null;
+            if (Match(TokenType.LESS))
+            {
+                Consume(TokenType.IDENTIFIER, "Expect superclass name.");
+                superClass = new Expr.Variable(Previous());
+            }
+
             Consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
 
             List<Stmt.Function> methods = new List<Stmt.Function>();
@@ -64,7 +73,7 @@ namespace lox.net
 
             Consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
 
-            return new Stmt.Class(name, methods);
+            return new Stmt.Class(name, superClass, methods);
         }
 
         private Stmt Statement()
@@ -426,6 +435,14 @@ namespace lox.net
             if (Match(TokenType.NUMBER, TokenType.STRING))
             {
                 return new Expr.Literal(Previous().literal);
+            }
+
+            if (Match(TokenType.SUPER))
+            {
+                Token keyword = Previous();
+                Consume(TokenType.DOT, "Expect '.' after 'super'.");
+                Token method = Consume(TokenType.IDENTIFIER, "Expect superclass method name.");
+                return new Expr.Super(keyword, method);
             }
 
             if (Match(TokenType.THIS)) return new Expr.This(Previous());
