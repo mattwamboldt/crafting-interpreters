@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using static lox.net.Stmt;
 
 namespace lox.net
 {
     public class Interpreter : Expr.IVisitor<object>, Stmt.IVisitor<object>
     {
         public readonly Environment globals = new Environment();
+        private readonly Dictionary<Expr, int> locals = new Dictionary<Expr, int>();
         private Environment environment;
 
         public Interpreter()
@@ -155,7 +155,17 @@ namespace lox.net
 
         public object VisitVariableExpr(Expr.Variable expr)
         {
-            return environment.Get(expr.name);
+            return LookUpVariable(expr.name, expr);
+        }
+
+        private object LookUpVariable(Token name, Expr expr)
+        {
+            if (locals.TryGetValue(expr, out int distance))
+            {
+                return environment.GetAt(distance, name.lexeme);
+            }
+
+            return globals.Get(name);
         }
 
         private void CheckNumberOperand(Token op, object operand)
@@ -210,6 +220,11 @@ namespace lox.net
         private void Execute(Stmt statement)
         {
             statement.Accept(this);
+        }
+
+        internal void Resolve(Expr expr, int depth)
+        {
+            locals[expr] = depth;
         }
 
         public void ExecuteBlock(List<Stmt> statements, Environment environment)
@@ -304,7 +319,15 @@ namespace lox.net
         public object VisitAssignExpr(Expr.Assign expr)
         {
             object value = Evaluate(expr.value);
-            environment.Assign(expr.name, value);
+            if (locals.TryGetValue(expr, out int distance))
+            {
+                environment.AssignAt(distance, expr.name, value);
+            }
+            else
+            {
+                globals.Assign(expr.name, value);
+            }
+
             return value;
         }
     }
