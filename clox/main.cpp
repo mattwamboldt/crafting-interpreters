@@ -19,6 +19,7 @@ This code is essentially from the book with few modifications so bare that in mi
 * - Chapter 14.1: find a way to rle the line numbers so they can be stored more efficiently.
 * - Chapter 14.2: add an OP_CONSTANT_LONG that stores the operand as a larger 24bit num
 * - Chapter 14.3: (sounds fun) implement realloc without library functions, only one large malloc at boot
+* - Chapter 17.3: Add support for a ternary operator
 */
 
 static void repl()
