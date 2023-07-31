@@ -2,11 +2,15 @@
 
 #include "common.h"
 
+struct Obj;
+struct ObjString;
+
 enum ValueType
 {
     VAL_BOOL,
     VAL_NIL,
     VAL_NUMBER,
+    VAL_OBJ
 };
 
 // NOTE: Doing the macros as functions cause I'm using cpp compilation
@@ -17,6 +21,7 @@ struct Value
     {
         bool boolean;
         double number;
+        Obj* object;
     } as;
 
     Value()
@@ -37,17 +42,26 @@ struct Value
         as.boolean = value;
     }
 
+    Value(Obj* object)
+    {
+        type = VAL_OBJ;
+        as.object = object;
+    }
+
     bool isBool() { return type == VAL_BOOL; }
     bool isNil() { return type == VAL_NIL; }
     bool isNumber() { return type == VAL_NUMBER; }
+    bool isObj() { return type == VAL_OBJ; }
 
     bool asBool() { return as.boolean; };
     double asNumber() { return as.number; };
+    Obj* asObject() { return as.object; };
 };
 
-#define BOOL_VAL(value)   (Value((bool)(value)))
-#define NIL_VAL           (Value())
-#define NUMBER_VAL(value) (Value((double)(value)))
+#define BOOL_VAL(value)     (Value((bool)(value)))
+#define NIL_VAL             (Value())
+#define NUMBER_VAL(value)   (Value((double)(value)))
+#define OBJ_VAL(object)     (Value((Obj*)(object)))
 
 struct ValueArray
 {
