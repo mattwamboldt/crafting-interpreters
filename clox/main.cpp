@@ -20,6 +20,8 @@ This code is essentially from the book with few modifications so bare that in mi
 * - Chapter 14.2: add an OP_CONSTANT_LONG that stores the operand as a larger 24bit num
 * - Chapter 14.3: (sounds fun) implement realloc without library functions, only one large malloc at boot
 * - Chapter 17.3: Add support for a ternary operator
+* - Chapter 21.1: Only add global variable names to the constant table once
+* - Chapter 21.2: Come up with a more efficient way to store and access global variables without changing semantics (Lookup only in parse phase?)
 */
 
 static void repl()
