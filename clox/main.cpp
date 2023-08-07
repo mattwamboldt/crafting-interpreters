@@ -22,6 +22,9 @@ This code is essentially from the book with few modifications so bare that in mi
 * - Chapter 17.3: Add support for a ternary operator
 * - Chapter 21.1: Only add global variable names to the constant table once
 * - Chapter 21.2: Come up with a more efficient way to store and access global variables without changing semantics (Lookup only in parse phase?)
+* - Chapter 22.1: Make a faster way for local variable resolution in compiler, other than linear scan
+* - Chapter 22.3: Add const variables
+* - Chapter 22.4: Allow more than 256 variables in scope at a time
 */
 
 static void repl()
