@@ -25,6 +25,8 @@ This code is essentially from the book with few modifications so bare that in mi
 * - Chapter 22.1: Make a faster way for local variable resolution in compiler, other than linear scan
 * - Chapter 22.3: Add const variables
 * - Chapter 22.4: Allow more than 256 variables in scope at a time
+* - Chapter 23.1: Add a switch statement
+* - Chapter 23.2: Add continue statements
 */
 
 static void repl()
