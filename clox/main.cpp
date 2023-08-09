@@ -27,6 +27,10 @@ This code is essentially from the book with few modifications so bare that in mi
 * - Chapter 22.4: Allow more than 256 variables in scope at a time
 * - Chapter 23.1: Add a switch statement
 * - Chapter 23.2: Add continue statements
+* - Chapter 24.1: Optimize the ip field access using register keyword to try to avoid main memory hit
+* - Chapter 24.2: Add arity checking to native functions
+* - Chapter 24.3: Add runtime error checking for native functions
+* - Chapter 24.4: Add more native functions
 */
 
 static void repl()
