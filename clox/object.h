@@ -29,6 +29,7 @@ enum ObjType
 struct Obj
 {
     ObjType type;
+    bool isMarked;
     Obj* next;
 };
 
